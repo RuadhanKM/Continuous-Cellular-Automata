@@ -22,8 +22,8 @@ function setGrid(x, y, v) {
 }
 
 const kernelSize = 4;
-const updateFrequency = 50;
-let showKernel = true;
+const updateFrequency = 100;
+let showKernel = false;
 
 function calculateKernelWeight(ox, oy) {
     let dis = Math.sqrt(ox**2+oy**2);
@@ -72,9 +72,9 @@ function renderLoop() {
             for (let x=0; x<kernelSize*2+1; x++) {
                 let o = getFlattenedWrappedPixelOffset(x, y);
                 let val = calculateKernelWeight(x - kernelSize, y - kernelSize);
-                imageData.data[o * 4 + 0] = (1-val)*255;
+                imageData.data[o * 4 + 0] = 20;
                 imageData.data[o * 4 + 1] = val*255;
-                imageData.data[o * 4 + 2] = 0;
+                imageData.data[o * 4 + 2] = (1-val)*255;
                 imageData.data[o * 4 + 3] = 255;
             }
         }
