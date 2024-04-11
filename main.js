@@ -34,6 +34,7 @@ let updateFrequency = 5;
 let kernelShape = 1;
 let tick = 0;
 let showKernel = false;
+let mousePos = [0, 0];
 
 function calculateKernelWeight(ox, oy) {
     let dis = Math.sqrt(ox**2+oy**2);
@@ -73,6 +74,17 @@ function renderLoop() {
     for (let y=0; y<canvas.height; y++) {
         for (let x=0; x<canvas.width; x++) {
             setGrid(x, y, getGrid(x, y) + growth(getPixelKernel(x, y))/updateFrequency);
+        }
+    }
+
+    // Paint
+    if (mousePos[0] > 0 && mousePos[0] < canvas.width && mousePos[1] > 0 && mousePos[1] < canvas.height) {
+        let brushSize = Math.max(Math.floor(kernelSize/2), 1);
+        for (let oy=-brushSize; oy<=brushSize; oy++) {
+            for (let ox=-brushSize; ox<=brushSize; ox++) {
+                let weight = 1-Math.sqrt(ox**2+oy**2)/(brushSize*Math.SQRT2);
+                setGrid(mousePos[0]-ox, mousePos[1]-oy, getGrid(mousePos[0]-ox, mousePos[1]-oy) + weight);
+            }
         }
     }
     
@@ -140,15 +152,8 @@ setInterval(renderLoop, 0);
         kernelShape = Math.exp(parseInt(e.target.value)/25);
     })
 
-    canvas.addEventListener("mousemove", e => {
-        let bx = Math.floor(e.offsetX/canvas.offsetWidth*canvas.width);
-        let by = Math.floor(e.offsetY/canvas.offsetHeight*canvas.height);
-
-        for (let oy=-kernelSize; oy<=kernelSize; oy++) {
-            for (let ox=-kernelSize; ox<=kernelSize; ox++) {
-                let weight = 1-Math.sqrt(ox**2+oy**2)/(kernelSize*Math.SQRT2);
-                setGrid(bx-ox, by-oy, getGrid(bx-ox, by-oy) + weight);
-            }
-        }
+    document.addEventListener("mousemove", e => {
+        mousePos[0] = Math.floor((e.clientX-canvas.offsetLeft/2)/canvas.offsetWidth*canvas.width);
+        mousePos[1] = Math.floor((e.clientY-canvas.offsetTop/2)/canvas.offsetHeight*canvas.height);
     })
 }
