@@ -34,6 +34,7 @@ let updateFrequency = 5;
 let kernelShape = 1;
 let tick = 0;
 let showKernel = false;
+let brushSize = 1;
 let mousePos = [0, 0];
 
 function calculateKernelWeight(ox, oy) {
@@ -79,17 +80,17 @@ function renderLoop() {
 
     // Paint
     if (mousePos[0] > 0 && mousePos[0] < canvas.width && mousePos[1] > 0 && mousePos[1] < canvas.height) {
-        let brushSize = Math.max(Math.floor(kernelSize/2), 1);
-        for (let oy=-brushSize; oy<=brushSize; oy++) {
-            for (let ox=-brushSize; ox<=brushSize; ox++) {
-                let weight = 1-Math.sqrt(ox**2+oy**2)/(brushSize*Math.SQRT2);
+        let bSize = Math.max(Math.floor(kernelSize/2*brushSize), 1);
+        for (let oy=-bSize; oy<=bSize; oy++) {
+            for (let ox=-bSize; ox<=bSize; ox++) {
+                let weight = 1-Math.sqrt(ox**2+oy**2)/(bSize*Math.SQRT2);
                 setGrid(mousePos[0]-ox, mousePos[1]-oy, getGrid(mousePos[0]-ox, mousePos[1]-oy) + weight);
             }
         }
     }
     
+    // Display kernel
     if (showKernel) {
-        // Display kernel
         for (let y=0; y<kernelSize*2+1; y++) {
             for (let x=0; x<kernelSize*2+1; x++) {
                 let o = getFlattenedWrappedPixelOffset(x, y);
@@ -116,6 +117,7 @@ setInterval(renderLoop, 0);
     let kernelRange = document.getElementById("kernelSizeRange");
     let kernelShapeRange = document.getElementById("kernelShapeRange");
     let speedRange = document.getElementById("speedRange");
+    let brushRange = document.getElementById("brushRange");
 
     clearButton.addEventListener("click", () => {
         for (let y=0; y<canvas.height; y++) {
@@ -142,18 +144,22 @@ setInterval(renderLoop, 0);
 
     kernelRange.addEventListener("input", e => {
         kernelSize = parseInt(e.target.value);
-    })
+    });
 
     speedRange.addEventListener("input", e => {
         updateFrequency = parseInt(e.target.value);
-    })
+    });
 
     kernelShapeRange.addEventListener("input", e => {
         kernelShape = Math.exp(parseInt(e.target.value)/25);
-    })
+    });
+    
+    brushRange.addEventListener("input", e => {
+        brushSize = Math.exp(parseInt(e.target.value)/25);
+    });
 
     document.addEventListener("mousemove", e => {
         mousePos[0] = Math.floor((e.clientX-canvas.offsetLeft/2)/canvas.offsetWidth*canvas.width);
         mousePos[1] = Math.floor((e.clientY-canvas.offsetTop/2)/canvas.offsetHeight*canvas.height);
-    })
+    });
 }
